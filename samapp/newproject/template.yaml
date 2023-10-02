@@ -1,0 +1,452 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  newproject
+
+  Sample SAM Template for newproject
+
+Globals:
+  Function:
+    Timeout: 3
+    MemorySize: 128
+
+Resources:
+  StockTradingStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      DefinitionUri: statemachine/stock_trader.asl.json
+      DefinitionSubstitutions:
+        SeparaterFunctionArn: !GetAtt separater.Arn
+        TExtractionFunctionArn: !GetAtt textraction.Arn
+      Policies:
+        - LambdaInvokePolicy:
+            FunctionName: !Ref separater
+        - LambdaInvokePolicy:
+            FunctionName: !Ref textraction
+      Events:
+        HelloWorld:
+          Type: CloudWatchEvent
+          Properties:
+            Pattern:
+              source:
+                - "aws.s3"
+              detail-type:
+                - "Object Created"
+              detail:
+                bucket:
+                  name:
+                    - "newbucket040911"
+                object:
+                  key:
+                    - prefix: "project0409/"
+
+
+  separater:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: separater/
+      Handler: app.lambda_handler
+      Runtime: python3.11
+      Architectures:
+        - x86_64
+
+  textraction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: textraction/
+      Handler: app.lambda_handler
+      Runtime: python3.11
+      Architectures:
+        - x86_64
+
+  MyS3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: newbucket040911 
+
+
+
+Outputs:
+  SeparaterFunctionArn:
+    Description: "ARN of the Separater Lambda function"
+    Value: !GetAtt separater.Arn
+
+  TExtractionFunctionArn:
+    Description: "ARN of the TExtraction Lambda function"
+    Value: !GetAtt textraction.Arn
+
+  StepFunctionArn:
+    Description: "ARN of the Step Functions state machine"
+    Value: !Ref StockTradingStateMachine
+
+  S3BucketName:
+    Description: "Name of the S3 bucket"
+    Value: !Ref MyS3Bucket
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# AWSTemplateFormatVersion: '2010-09-09'
+# Transform: AWS::Serverless-2016-10-31
+# Description: >
+#   newproject
+
+#   Sample SAM Template for newproject
+
+# Globals:
+#   Function:
+#     Timeout: 3
+#     MemorySize: 128
+    
+# Resources:
+#   StockTradingStateMachine:
+#     Type: AWS::Serverless::StateMachine
+#     Properties:
+#       DefinitionUri: statemachine/stock_trader.asl.json
+#       DefinitionSubstitutions:
+#         SeparaterFunctionArn: !GetAtt separater.Arn
+#         TExtractionFunctionArn: !GetAtt textraction.Arn
+#       Policies:
+#         - LambdaInvokePolicy:
+#             FunctionName: !Ref separater
+#         - LambdaInvokePolicy:
+#             FunctionName: !Ref textraction
+
+#   separater:
+#     Type: AWS::Serverless::Function
+#     Properties:
+#       CodeUri: separater/
+#       Handler: app.lambda_handler
+#       Runtime: python3.8
+#       Architectures:
+#         - x86_64
+
+#   textraction:
+#     Type: AWS::Serverless::Function
+#     Properties:
+#       CodeUri: textraction/
+#       Handler: app.lambda_handler
+#       Runtime: python3.8
+#       Architectures:
+#         - x86_64
+
+#   MyS3Bucket:
+#     Type: 'AWS::S3::Bucket'
+#     Properties:
+#       BucketName: newbucket04091122 
+
+# Outputs:
+#   SeparaterFunctionArn:
+#     Description: "ARN of the Separater Lambda function"
+#     Value: !GetAtt separater.Arn
+
+#   TExtractionFunctionArn:
+#     Description: "ARN of the TExtraction Lambda function"
+#     Value: !GetAtt textraction.Arn
+
+#   StepFunctionArn:
+#     Description: "ARN of the Step Functions state machine"
+#     Value: !Ref StockTradingStateMachine
+
+#   S3BucketName:
+#     Description: "Name of the S3 bucket"
+#     Value: !Ref MyS3Bucket
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# AWSTemplateFormatVersion: '2010-09-09'
+# Transform: AWS::Serverless-2016-10-31
+# Description: >
+#   newproject
+
+#   Sample SAM Template for newproject
+
+# # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+# Globals:
+#   Function:
+#     Timeout: 3
+#     MemorySize: 128
+
+# Resources:
+#   separater:
+#     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+#     Properties:
+#       CodeUri: separater/
+#       Handler: app.lambda_handler
+#       Runtime: python3.8
+#       Architectures:
+#         - x86_64
+#       Events:
+#         HelloWorld:
+#           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+#           Properties:
+#             Path: /hello
+#             Method: get
+
+# Outputs:
+#   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+#   # Find out more about other implicit resources you can reference within SAM
+#   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+#   HelloWorldApi:
+#     Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+#     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+#   HelloWorldFunction:
+#     Description: "Hello World Lambda Function ARN"
+#     Value: !GetAtt separater.Arn
+#   HelloWorldFunctionIamRole:
+#     Description: "Implicit IAM Role created for Hello World function"
+#     Value: !GetAtt separater.Arn
+
+
+
+
+# AWSTemplateFormatVersion: '2010-09-09'
+# Transform: AWS::Serverless-2016-10-31
+# Description: >
+#   newproject
+
+#   Sample SAM Template for newproject
+
+# # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+# Globals:
+#   Function:
+#     Timeout: 3
+#     MemorySize: 128
+# Resources:
+#   MyStepFunction:
+#     Type: 'AWS::StepFunctions::StateMachine'
+#     Properties:
+#       DefinitionString:
+#         Fn::Sub: |
+#           {
+#             "StartAt": "InvokeFirstLambda",
+#             "States": {
+#               "InvokeFirstLambda": {
+#                 "Type": "Task",
+#                 "Resource": "YourFirstLambdaFunctionArn",  # Replace with the actual ARN
+#                 "End": true
+#               },
+#               "InvokeSecondLambda": {
+#                 "Type": "Task",
+#                 "Resource": "YourSecondLambdaFunctionArn",  # Replace with the actual ARN
+#                 "End": true
+#               }
+#             }
+#           }
+
+
+
+# AWSTemplateFormatVersion: '2010-09-09'
+# Transform: AWS::Serverless-2016-10-31
+# Description: >
+#   newproject
+
+#   Sample SAM Template for newproject
+
+# # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+# Globals:
+#   Function:
+#     Timeout: 3
+#     MemorySize: 128
+
+# MyStepFunction:
+#   Type: AWS::StepFunctions::StateMachine
+#   Properties:
+#     DefinitionString:
+#       Fn::Sub: |
+#         {
+#           "StartAt": "InvokeSeparater",
+#           "States": {
+#             "InvokeSeparater": {
+#               "Type": "Task",
+#               "Resource": !GetAtt separater.Arn,
+#               "End": false,
+#               "Next": "InvokeTextraction"
+#             },
+#             "InvokeTextraction": {
+#               "Type": "Task",
+#               "Resource": !GetAtt textraction.Arn,
+#               "End": true
+#             }
+#           }
+#         }
+
+# Resources:
+#   separater:
+#     Type: AWS::Serverless::Function
+#     Properties:
+#       CodeUri: separater/
+#       Handler: app.lambda_handler
+#       Runtime: python3.8
+#       Architectures:
+#         - x86_64
+
+#   textraction:
+#     Type: AWS::Serverless::Function
+#     Properties:
+#       CodeUri: textraction/
+#       Handler: app.lambda_handler
+#       Runtime: python3.8
+#       Architectures:
+#         - x86_64
+
+#   MyS3Bucket:
+#     Type: 'AWS::S3::Bucket'
+#     Properties:
+#       BucketName: newbucket04091122 
+
+#   # MyS3BucketEvent:
+#   #   Type: 'AWS::S3::BucketNotification'
+#   #   Properties:
+#   #     Bucket: !Ref MyS3Bucket
+#   #     NotificationConfiguration:
+#   #       LambdaConfigurations:
+#   #         - Event: 's3:ObjectCreated:*'
+#   #           Function: !GetAtt MyStepFunction.Arn
+
+# Outputs:
+#   SeparaterFunctionArn:
+#     Description: "ARN of the Separater Lambda function"
+#     Value: !GetAtt separater.Arn
+
+#   TExtractionFunctionArn:
+#     Description: "ARN of the TExtraction Lambda function"
+#     Value: !GetAtt textraction.Arn
+  
+#   # StepFunctionArn:
+#   #   Description: "ARN of the Step Functions state machine"
+#   #   Value: !Ref MyStepFunction
+
+#   S3BucketName:
+#     Description: "Name of the S3 bucket"
+#     Value: !Ref MyS3Bucket  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Resources:
+#   separater:
+#     Type: AWS::Serverless::Function
+#     Properties:
+#       CodeUri: separater/
+#       Handler: app.lambda_handler
+#       Runtime: python3.8
+#       Architectures:
+#         - x86_64
+
+#   textraction:
+#     Type: AWS::Serverless::Function
+#     Properties:
+#       CodeUri: textraction/
+#       Handler: app.lambda_handler
+#       Runtime: python3.8
+#       Architectures:
+#         - x86_64
+
+ 
+#   MyStepFunction:
+#       Type: AWS::StepFunctions::StateMachine
+#       Properties:
+#         DefinitionString:
+#           Fn::Sub: |
+#             {
+#               "StartAt": "InvokeSeparater",
+#               "States": {
+#                 "InvokeSeparater": {
+#                   "Type": "Task",
+#                   "Resource": "arn:aws:lambda:your-region:your-account-id:function:separater",
+#                   "End": false,
+#                   "Next": "InvokeTextraction"
+#                 },
+#                 "InvokeTextraction": {
+#                   "Type": "Task",
+#                   "Resource": "arn:aws:lambda:your-region:your-account-id:function:tExtraction",
+#                   "End": true
+#                 }
+#               }
+#             }
+
+
+
+
+
+#   MyS3Bucket:
+#     Type: 'AWS::S3::Bucket'
+#     Properties:
+#       BucketName: newbucket04091122  # Replace with your desired bucket name
+
+#   # MyS3BucketEvent:
+#   #   Type: 'AWS::S3::BucketNotification'
+#   #   Properties:
+#   #     Bucket: !Ref MyS3Bucket
+#   #     NotificationConfiguration:
+#   #       LambdaConfigurations:
+#   #         - Event: 's3:ObjectCreated:*'
+#   #           Function: !GetAtt MyStepFunction.Arn
+
+# Outputs:
+#   SeparaterFunctionArn:
+#     Description: "ARN of the Separater Lambda function"
+#     Value: !GetAtt separater.Arn
+
+#   TExtractionFunctionArn:
+#     Description: "ARN of the TExtraction Lambda function"
+#     Value: !GetAtt textraction.Arn
+
+#   # StepFunctionArn:
+#   #   Description: "ARN of the Step Functions state machine"
+#   #   Value: !Ref MyStepFunction
+
+#   S3BucketName:
+#     Description: "Name of the S3 bucket"
+#     Value: !Ref MyS3Bucket

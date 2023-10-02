@@ -1,0 +1,25 @@
+
+{
+  "Comment": "Data Processing Pipeline",
+  "StartAt": "InvokeSeparater",
+  "States": {
+    "InvokeSeparater": {
+      "Type": "Task",
+      "Resource": "${SeparaterFunctionArn}",
+      "Parameters": {
+        "FunctionName": "newproject-separater-VJmFSazvI5Hx"
+      },
+      "ResultPath": "$.firstLambdaOutput",  
+      "Next": "InvokeTextraction"
+    },
+    "InvokeTextraction": {
+      "Type": "Task",
+      "Resource": "${TExtractionFunctionArn}",
+      "Parameters": {
+        "FunctionName": "newproject-textraction-gRnyTVBGDCXQ",
+        "Payload.$": "$.firstLambdaOutput"  
+      },
+      "End": true
+    }
+  }
+}
